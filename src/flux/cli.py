@@ -13,6 +13,7 @@ from flux.sampling import denoise, get_noise, get_schedule, prepare, unpack
 from flux.util import (configs, embed_watermark, load_ae, load_clip,
                        load_flow_model, load_t5)
 from transformers import pipeline
+from torch.profiler import profile, record_function, ProfilerActivity
 
 NSFW_THRESHOLD = 0.85
 
@@ -129,6 +130,14 @@ def main(
         guidance: guidance value used for guidance distillation
         add_sampling_metadata: Add the prompt to the image Exif metadata
     """
+    # prof = torch.profiler.profile(
+    #     on_trace_ready=torch.profiler.tensorboard_trace_handler('logs/profiler_output'),
+    #     profile_memory=True,
+    #     record_shapes=True,
+    #     # with_stack=True
+    # )
+    # prof.start()
+    
     nsfw_classifier = pipeline("image-classification", model="Falconsai/nsfw_image_detection", device=device)
 
     if name not in configs:
@@ -244,6 +253,8 @@ def main(
             opts = parse_prompt(opts)
         else:
             opts = None
+    # prof.step()
+    # prof.stop()
 
 
 def app():
@@ -251,4 +262,8 @@ def app():
 
 
 if __name__ == "__main__":
+
+
     app()
+
+
